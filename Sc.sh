@@ -61,7 +61,7 @@ source "$CONFIG_FILE" 2>/dev/null || UPLOAD_LIMIT="64M"
 
 BACKUP_DIR="/root/backups"
 mkdir -p $BACKUP_DIR
-UPDATE_URL="https://raw.githubusercontent.com/mrzero0nol/Bunny-deploy/main/bdm.sh"
+UPDATE_URL="https://raw.githubusercontent.com/mrzero0nol/Buwung/refs/heads/main/Sc.sh"
 
 # --- HELPER: PATH FINDER ---
 get_site_root() {
