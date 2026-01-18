@@ -25,13 +25,6 @@ if ! command -v jq &> /dev/null; then
     apt install -y curl git unzip zip build-essential ufw software-properties-common mariadb-server bc jq || { echo "Gagal install tools dasar"; exit 1; }
 fi
 
-# Firewall Configuration (PENTING untuk Certbot & Akses)
-echo "Konfigurasi Firewall (UFW)..."
-ufw allow OpenSSH
-ufw allow 'Nginx Full'
-# Pastikan UFW aktif (optional, force enable bisa memutus koneksi jika ssh port beda, jadi kita allow dulu)
-# ufw --force enable
-
 # Service Database & Web Server
 if ! systemctl is-active --quiet mariadb; then
     systemctl start mariadb
@@ -45,6 +38,14 @@ if ! command -v nginx &> /dev/null; then
     apt update -y
     apt install -y nginx certbot python3-certbot-nginx || { echo "Gagal install Nginx/Certbot"; exit 1; }
 fi
+
+# Firewall Configuration (PENTING untuk Certbot & Akses)
+# Dijalankan setelah install Nginx agar profile 'Nginx Full' tersedia
+echo "Konfigurasi Firewall (UFW)..."
+ufw allow OpenSSH
+ufw allow 'Nginx Full' 2>/dev/null || ufw allow 80,443/tcp
+# Pastikan UFW aktif (optional, force enable bisa memutus koneksi jika ssh port beda, jadi kita allow dulu)
+# ufw --force enable
 
 # --- FIX: CLOUDFLARE REAL IP (PENTING) ---
 # Agar Nginx mencatat IP asli pengunjung, bukan IP Cloudflare
@@ -471,3 +472,10 @@ EOF
 
 chmod +x /usr/local/bin/bd
 echo -e "${GREEN}SUKSES: BUNNY DEPLOY MANAGER v6.4 (Secured) Terinstall.${NC}"
+
+# Cek apakah butuh restart (Kernel updates)
+if [ -f /var/run/reboot-required ]; then
+    echo -e "${YELLOW}PERINGATAN: Update Kernel terdeteksi.${NC}"
+    echo -e "${YELLOW}Sangat disarankan untuk REBOOT server Anda agar update berlaku.${NC}"
+    echo -e "Jalankan perintah: ${WHITE}reboot${NC}"
+fi
